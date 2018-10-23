@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.thp.structureaddress.mapper.GetUserSNOrAddressSNMapper">
+	<resultMap type="com.thp.structureaddress.model.getuserandaddressrelation.AddressAndUserRelation" id="relationMap">
+		<result column="addressNumber" property="addressSN"/>
+		<result column="userNumber" property="userSN"/>
+		<result column="GUID" property="addressId" />
+	</resultMap>
+
+	<select id="getUserSN" parameterType="string" resultMap="relationMap">
+		select 
+			用户编号 as userNumber, 
+			序号 as addressNumber,
+			GUID
+		from 
+			ZCFKH_YDKH
+		WHERE 序号 =#{number,jdbcType=VARCHAR}
+	</select>
+	<select id="getAddressSN" parameterType="string" resultMap="relationMap">
+		select 
+			用户编号 as userNumber,
+			序号 as addressNumber,
+			GUID
+		from 
+			ZCFKH_YDKH
+		WHERE 用户编号 =#{number,jdbcType=VARCHAR}
+	</select>
+	<select id="getAddressSNAndUserSN" parameterType="string" resultMap="relationMap">
+		select 
+			序号 as addressNumber,
+			用户编号 as userNumber,
+			GUID
+		from 
+			ZCFKH_YDKH
+		WHERE GUID =#{number,jdbcType=VARCHAR}
+	</select>
+
+
+</mapper>

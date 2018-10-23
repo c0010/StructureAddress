@@ -1,0 +1,147 @@
+package com.thp.structureaddress.controller;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.thp.structureaddress.model.gettransfomerinfo.TransFormerInfo;
+import com.thp.structureaddress.model.gettransfomerinfo.TransformerBasicInfo;
+import com.thp.structureaddress.model.gettransfomerinfo.TransformerFrequencyCutInfo;
+import com.thp.structureaddress.model.gettransfomerinfo.TransformerInfoFromMarketDpt;
+import com.thp.structureaddress.model.gettransfomerinfo.TransformerInfoFromPlanDpt;
+import com.thp.structureaddress.util.URLUtil;
+
+
+/**
+ * @author dingjinyang
+ * 2.1.1点坐标获取变压器空间和属性信息
+ * 1.调用 ”点坐标获取变压器id” 服务接口来获取变压器geometry,basicInfo
+ * 2.调用营销接口获取几何形状和变压器基本属性信息
+ */
+@Controller
+@RequestMapping("GetTransformerInfo")
+public class GetTransformerInfo {
+
+	private Logger logger=LoggerFactory.getLogger(GetTransformerInfo.class);
+	
+	@Value("${GeometryURL}")
+	private String geometryURL;
+	
+	
+	public String getGeometryURL() {
+		return geometryURL;
+	}
+	
+	public void setGeometryURL(String geometryURL) {
+		this.geometryURL = geometryURL;
+	}
+
+	
+	/**
+	 * 
+	 * @param longitude 经度是X
+	 * @param latitude 纬度是Y
+	 * @return
+	 */
+	@RequestMapping("/getTransFormerInfo")
+	public @ResponseBody JSONObject getTransFormerInfo(String longitude,String latitude){
+		logger.info("调用点坐标查询变压器空间属性信息接口--------------------");
+		JSONObject object=new JSONObject();
+		TransFormerInfo transFormerInfo=new TransFormerInfo();
+		
+		if(longitude==null||latitude==null){
+			object.put("code", 1);
+			object.put("message", "接收坐标信息失败，请重新发送");
+			object.put("transInfo", "");
+			return object;
+		}
+		
+		//获取变压器基本信息
+		getTransformerBasicInfo(transFormerInfo,longitude,latitude);
+		
+		/**
+		 * 写死营销信息(测试用)
+		 */
+		transFormerInfo.setFrequencyCutInfo(TransformerFrequencyCutInfo.getInstance());
+		transFormerInfo.setInfoFromMarketDpt(TransformerInfoFromMarketDpt.getInstance());
+		transFormerInfo.setInfoFromPlanDpt(TransformerInfoFromPlanDpt.getInstance());
+		
+		
+		object.put("code", 0);
+		object.put("message", "ok");
+		object.put("transInfo", transFormerInfo);
+		return object;
+	}
+	
+	/**
+	 * 获取geometry
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private void getTransformerBasicInfo(TransFormerInfo transFormerInfo, String x,String y){
+		
+		if(transFormerInfo==null)
+		{
+			transFormerInfo=new TransFormerInfo();
+		}
+		
+		StringBuffer sb=new StringBuffer();
+		sb.append(this.geometryURL);
+		sb.append("?");
+		sb.append("longitude="+y);
+		sb.append("&latitude="+x);
+		sb.append("&distance="+1000);
+		String resStr=URLUtil.urlRequest(sb.toString(), "GET");
+		if(StringUtils.isNotBlank(resStr))
+		{	
+			JSONObject esriFeatureJsonObj = JSON.parseObject(resStr);
+			
+			Object geometryObj = esriFeatureJsonObj.get("geometry");
+			if(geometryObj !=null)
+			{
+				String geometryString = geometryObj.toString();
+				transFormerInfo.setGeometry(geometryString);
+			}
+			
+			Object attrisObj=esriFeatureJsonObj.get("attributes");
+			if(attrisObj !=null)
+			{	
+				String attrisString=attrisObj.toString();
+				TransformerBasicInfo basicInfo=new TransformerBasicInfo();
+				basicInfo.setBasicInfoJsonString(attrisString);
+				transFormerInfo.setBasicInfo(basicInfo);
+			}
+		}
+		
+	}
+	
+	/**
+	 * 获取basicInfo
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+//	private String getBasicInfo(String x,String y){
+//		StringBuffer sb=new StringBuffer();
+//		sb.append(this.basicInfoURL);
+//		sb.append("?");
+//		sb.append("longitude="+y);
+//		sb.append("&latitude="+x);
+//		sb.append("&distance="+1000);
+//		String resStr=URLUtil.urlRequest(sb.toString(), "GET");
+//		return resStr;
+//	}
+	
+
+	
+}
+
+
+

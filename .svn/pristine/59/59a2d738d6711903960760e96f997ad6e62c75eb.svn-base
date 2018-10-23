@@ -1,0 +1,174 @@
+
+package com.thp.structureaddress.webservice.model.forwardaddress;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+
+/**
+ * <p>Java class for STRUCADDRIn complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="STRUCADDRIn">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="CXBZ" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="CXNR" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="AK" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="BM" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="XCTS" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
+ * </pre>
+ * 
+ * 
+ */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "STRUCADDRIn", propOrder = {
+    "cxbz",
+    "cxnr",
+    "ak",
+    "bm",
+    "xcts"
+})
+public class STRUCADDRIn {
+
+    @XmlElement(name = "CXBZ")
+    protected String cxbz;
+    @XmlElement(name = "CXNR")
+    protected String cxnr;
+    @XmlElement(name = "AK")
+    protected String ak;
+    @XmlElement(name = "BM")
+    protected String bm;
+    @XmlElement(name = "XCTS")
+    protected Integer xcts;
+
+    /**
+     * Gets the value of the cxbz property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCXBZ() {
+        return cxbz;
+    }
+
+    /**
+     * Sets the value of the cxbz property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCXBZ(String value) {
+        this.cxbz = value;
+    }
+
+    /**
+     * Gets the value of the cxnr property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCXNR() {
+        return cxnr;
+    }
+
+    /**
+     * Sets the value of the cxnr property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCXNR(String value) {
+        this.cxnr = value;
+    }
+
+    /**
+     * Gets the value of the ak property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAK() {
+        return ak;
+    }
+
+    /**
+     * Sets the value of the ak property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAK(String value) {
+        this.ak = value;
+    }
+
+    /**
+     * Gets the value of the bm property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getBM() {
+        return bm;
+    }
+
+    /**
+     * Sets the value of the bm property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setBM(String value) {
+        this.bm = value;
+    }
+
+    /**
+     * Gets the value of the xcts property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Integer }
+     *     
+     */
+    public Integer getXCTS() {
+        return xcts;
+    }
+
+    /**
+     * Sets the value of the xcts property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Integer }
+     *     
+     */
+    public void setXCTS(Integer value) {
+        this.xcts = value;
+    }
+
+}

@@ -1,0 +1,97 @@
+package com.thp.structureaddress.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.thp.structureaddress.model.getuserinfo.UserBasicInfo;
+import com.thp.structureaddress.model.getuserinfo.UserInfo;
+import com.thp.structureaddress.util.HttpClientCallSoapUtil;
+
+/**
+ * 
+ * @author dingjinyang
+ * 2.1.5通过用户编号来获取该用户的基本信息和缴费信息。
+ */
+@Controller
+@RequestMapping("GetUserInfo")
+public class GetUserInfo {
+
+	private Logger logger=LoggerFactory.getLogger(GetUserInfo.class);
+	
+	@Value("${UserNumberCustomerServerURL}")
+	private String serverURL;
+
+	public String getServerURL() {
+		return serverURL;
+	}
+
+	public void setServerURL(String serverURL) {
+		this.serverURL = serverURL;
+	}
+
+
+
+	/**
+	 * 通过用户编号来获取该用户的基本信息和缴费信息。
+	 * @param userSN
+	 * @return
+	 */
+	@RequestMapping("/getUserInfo")
+	public@ResponseBody JSONObject getUserInfo(String userSN){
+		logger.info("调用用户编号获取用户信息和缴费信息接口------------------");
+		JSONObject jsonObject=new JSONObject();
+		
+		if(userSN==null){
+			jsonObject.put("code", 1);
+			jsonObject.put("message", "接收用户编号失败，需要重新发送");
+			return jsonObject;
+		}
+		
+		
+		//调用营销接口获取用户基本基本信息和缴费信息
+//		String userXML=getUserMessage(userSN);
+//		String userJson=XMLUtil.xmlToJson(userXML);
+//		JsonUtil.getObject(userJson, clazz)
+
+		/**
+		 * 写死营销信息(测试用)
+		 */
+		UserInfo userInfo=new UserInfo();
+		userInfo.setBasicInfo(UserBasicInfo.getInstance());
+		userInfo.setPlayInfo(null);
+		
+		
+		
+		jsonObject.put("code", 0);
+		jsonObject.put("message", "ok");
+		jsonObject.put("userInfo", userInfo);
+		return jsonObject;
+			
+	}
+	
+	
+	
+	/**
+	 * 调用营销接口获取用户信息
+	 * @param userSN
+	 * @return
+	 */
+	private String getUserMessage(String userSN){
+		//拼接请求报文
+		StringBuffer sbf=new StringBuffer();
+		//.....
+		
+		
+		String userMessage=HttpClientCallSoapUtil.doPostSoap1_1(this.serverURL, sbf.toString());
+		return userMessage;
+	}
+	
+	
+	
+	
+}

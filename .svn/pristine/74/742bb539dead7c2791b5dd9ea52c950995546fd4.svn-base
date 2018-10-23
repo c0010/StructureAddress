@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+<mapper namespace="com.thp.structureaddress.mapper.GetUserSNOrAddressSNMapper">
+
+	<select id="getUserSN" parameterType="string" resultType="string">
+		select 用户编号 as userNumber from 
+		ZCFKH_YDKH
+		WHERE 序号 =#{number,jdbcType=VARCHAR}
+	</select>
+	<select id="getAddressSN" parameterType="string" resultType="string">
+		select 序号 as addressNumber from 
+		ZCFKH_YDKH
+		WHERE 用户编号 =#{number,jdbcType=VARCHAR}
+	</select>
+
+
+</mapper>

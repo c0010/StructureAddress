@@ -1,0 +1,100 @@
+package com.thp.structureaddress.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.thp.structureaddress.service.addressassociatedusernumber.GetUserNumberService;
+import com.thp.structureaddress.webservice.model.forwardaddress.GetStrucAddressRequest;
+import com.thp.structureaddress.webservice.model.forwardaddress.GetStrucAddressResponse;
+import com.thp.structureaddress.webservice.model.forwardaddress.STRUCADDROut;
+import com.thp.structureaddress.webservice.service.forwardaddress.SOAServicePort;
+/**
+ * 
+ * @author dingjinyang
+ * 地址查询用户号集合接口
+ * 1.根据地址调用精一接口返回脱密序号集合
+ * 2.根据脱密序号查询数据库表得到用户号集合
+ */
+@Controller
+@RequestMapping("AddressAssociatedUserNumber")
+public class AddressAssociatedUserNumber {
+
+	private Logger logger=LoggerFactory.getLogger(AddressAssociatedUserNumber.class);
+	@Autowired
+	private GetUserNumberService getUserNumberService;
+	
+	@Value("${ForwardAddressServerURL}")
+	private String serverURL;
+	
+	public String getServerURL() {
+		return serverURL;
+	}
+	public void setServerURL(String serverURL) {
+		this.serverURL = serverURL;
+	}
+
+	
+
+	@RequestMapping("/getUserNumberByAddress")
+	public@ResponseBody  List<String> getUserNumberByAddress(GetStrucAddressRequest addressRequest){
+		logger.info("调用结构化地址查询用户号接口-----------");
+		List<String> numberList=new ArrayList<String>();
+		//调用营销接口
+	    JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+	    factory.setAddress(this.serverURL);
+	    factory.setServiceClass(SOAServicePort.class);
+	    factory.getInInterceptors().add(new LoggingInInterceptor());
+	    SOAServicePort service=(SOAServicePort) factory.create();
+	    //调用营销接口返回的对象
+	    GetStrucAddressResponse response=service.getGetStrucAddress(addressRequest);
+	    List<STRUCADDROut> structs= response.getSTRUCADDROUT();
+	    //获得脱密序号集合
+	    if(structs!=null){
+	    	for(STRUCADDROut out : structs){
+	    		if(out!=null&&out.getBYZD1()!=null&&StringUtils.isNotEmpty(out.getBYZD1())){
+	    			
+	    			logger.info("脱密序号:"+out.getBYZD1());
+	    			numberList.add(out.getBYZD1());
+	    		}
+	    	}
+	    }
+
+//	    numberList.add("5365392");
+//	    numberList.add("3283593");
+//	    numberList.add("3565815");
+//	    numberList.add("3283593");
+	    //根据脱密序号查询用户号
+	    List<String> userNumbers=new ArrayList<String>();
+	    userNumbers=getUserNumberService.getUserNumber(numberList);
+		
+	    
+	    return userNumbers;
+	}
+	
+//	public static void main(String[] args) {
+//		AddressUserNumber address=new AddressUserNumber();
+//		GetStrucAddressRequest request=new GetStrucAddressRequest();
+//		List<STRUCADDRIn> list=new ArrayList<STRUCADDRIn>();
+//		STRUCADDRIn structADDR=new STRUCADDRIn();
+//		structADDR.setAK("11");
+//		structADDR.setCXBZ("333");
+//		structADDR.setCXNR("天河南二路");
+//		structADDR.setXCTS(20);
+//		list.add(structADDR);
+//		request.setStrucaddrin(list);
+//		List<String> numbers=address.getUserNumberByAddress(request);
+//	}
+	
+	
+}

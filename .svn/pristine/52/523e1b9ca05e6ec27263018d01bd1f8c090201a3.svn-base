@@ -1,0 +1,118 @@
+package com.thp.structureaddress.controller;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.thp.structureaddress.model.getuserandaddressrelation.AddressAndUserRelation;
+import com.thp.structureaddress.service.getusersnoraddresssn.GetUsersnOrAddresssnService;
+import com.thp.structureaddress.util.HttpClientCallSoapUtil;
+/**
+ * 
+ * @author dingjinyang
+ * 2.1.4通过用户编号来获取该用户的经纬度信息
+ * 1.根据用户编号获取地址序号
+ * 2.根据地址序号调用结构化地址获得经纬度信息
+ */
+@Controller
+@RequestMapping("GetAddressInfo")
+public class GetAddressInfo {
+	private Logger logger=LoggerFactory.getLogger(GetAddressInfo.class);
+	@Autowired
+	private GetUsersnOrAddresssnService getUsersnOrAddresssnService;
+
+	
+	@Value("${ForwardAddressServerURL}")
+	private String serverURL;
+	
+	public void setServerURL(String serverURL) {
+		this.serverURL = serverURL;
+	}
+	public String getServerURL() {
+		return serverURL;
+	}
+	
+	@RequestMapping("/getAddressInfo")
+	public@ResponseBody JSONObject getAddressInfo(String userSN){
+		logger.info("调用用户编号获取用户经纬度信息接口-------------------");
+		JSONObject json=new JSONObject();
+		AddressAndUserRelation relationInfo=null;
+		String guid="";
+		String addressInfoXML="";
+		
+		if(userSN==null){
+			json.put("code", 1);
+			json.put("message", "未接收到用户编号");
+			json.put("addressInfo","");
+			return json;
+		}
+		//获取结构化地址id
+		relationInfo=getUsersnOrAddresssnService.getAddressSN(userSN);
+		if(relationInfo!=null){
+			guid=relationInfo.getAddressId();
+			//根据结构化地址id获得结构化地址信息
+			if(StringUtils.isNotEmpty(guid)){
+				addressInfoXML=getAddressReserveInfo(guid);
+			}
+		}
+
+		
+		
+		if(StringUtils.isNotEmpty(addressInfoXML)){
+			json.put("code", 0);
+			json.put("message", "成功");
+			json.put("addressInfo", addressInfoXML);
+		}else{
+			json.put("code", 1);
+			json.put("message", "失败");
+			json.put("addressInfo", "");
+		}
+		return json;
+	}
+	/**
+	 * 调用结构化地址接口
+	 * @param addressSN
+	 * @return
+	 */
+	private String getAddressReserveInfo(String addressSN){
+		//拼接请求报文
+		StringBuffer sb=new StringBuffer();
+		sb.append("<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:soa='http://soa.csg.cn'>");
+		sb.append("<soapenv:Header/>");
+		sb.append("<soapenv:Body>");
+		sb.append("<soa:getStrucAddressRequest>");
+		sb.append("<soa:STRUCADDR_IN>");
+		sb.append("<soa:CXBZ>cxbz</soa:CXBZ>");
+		sb.append("<soa:CXNR>");
+		sb.append(addressSN);
+		sb.append("</soa:CXNR>");
+		sb.append("<soa:AK>ak</soa:AK>");
+		sb.append("<soa:BM></soa:BM>");
+		sb.append("<soa:XCTS></soa:XCTS>");
+		sb.append("</soa:STRUCADDR_IN>");
+		sb.append("</soa:getStrucAddressRequest>");
+		sb.append("</soapenv:Body>");
+		sb.append("</soapenv:Envelope>");
+		
+		String str=HttpClientCallSoapUtil.doPostSoap1_1(this.getServerURL(), sb.toString());
+		return str;
+	}
+	
+	/**
+	 * 测试
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String retStr=new GetAddressInfo().getAddressReserveInfo("13F9ED7E-C0E3-499F-BB8C-B42105798645");
+		System.out.println("结构化地址信息:"+retStr);
+		//retStr=<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soa="http://soa.csg.cn"><SOAP-ENV:Body><soa:getStrucAddressResponse><soa:STRUCADDR_OUT><soa:CXBZ>cxbz</soa:CXBZ><soa:GUID>13F9ED7E-C0E3-499F-BB8C-B42105798645</soa:GUID><soa:SJQHDM>440100</soa:SJQHDM><soa:SJQHMC>广州市</soa:SJQHMC><soa:QXDM>440105</soa:QXDM><soa:QXMC>海珠区</soa:QXMC><soa:XZDM>440105009</soa:XZDM><soa:XZMC>龙凤街道</soa:XZMC><soa:ZRCQHDM>440105009102</soa:ZRCQHDM><soa:ZRCQHMC>新民社区</soa:ZRCQHMC><soa:JLXDM></soa:JLXDM><soa:JLXMC>新民四街</soa:JLXMC><soa:MPDM>21号</soa:MPDM><soa:JZWDM></soa:JZWDM><soa:JZWMC></soa:JZWMC><soa:DYDM></soa:DYDM><soa:DYMC></soa:DYMC><soa:LCH>3楼</soa:LCH><soa:FJDM></soa:FJDM><soa:FJMC>303房</soa:FJMC><soa:DZQC>广州市海珠区龙凤街道新民社区新民四街21号3楼303房</soa:DZQC><soa:BM></soa:BM><soa:ZXJD>113.24733</soa:ZXJD><soa:ZXWD>23.0971</soa:ZXWD><soa:SYZTDM>1</soa:SYZTDM><soa:QYSJ>2018-07-22 00:00:00</soa:QYSJ><soa:TYSJ></soa:TYSJ><soa:GXSJ>2018-07-23 10:28:05</soa:GXSJ><soa:PPD>0.139</soa:PPD><soa:BYZD1>1407983</soa:BYZD1></soa:STRUCADDR_OUT><soa:replyCode>ok</soa:replyCode></soa:getStrucAddressResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>
+	 
+	}
+	
+}

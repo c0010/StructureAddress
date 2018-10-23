@@ -1,0 +1,26 @@
+package com.thp.structureaddress.webservice.custroubleworkerorder.model;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
+/**
+ * 
+ * @author dingjinyang
+ * 
+ */
+@XmlAccessorType(XmlAccessType.FIELD)
+public class UploadRepairInfoRequest {
+
+	@XmlElement(name="commonDataRequest",namespace="http://repairBillInfoReceive.server.webservice.ksfd.gzkit.com")
+	private CommonDataRequest commonDataRequest;
+	
+	public void setCommonDataRequest(CommonDataRequest commonDataRequest) {
+		this.commonDataRequest = commonDataRequest;
+	}
+	
+	public CommonDataRequest getCommonDataRequest() {
+		return commonDataRequest;
+	}
+
+}
